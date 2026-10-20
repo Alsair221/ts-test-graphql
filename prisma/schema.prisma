@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Profile {
+    id Int @id @default(autoincrement())
+    name String  @unique
+    description String?
+    github String?
+    linkedin String?
+    skills ProfileSkill[]
+    experience Experience[]
+    projects Project[]
+}
+
+model ProfileSkill {
+    profile Profile @relation(fields: [profileId], references: [id])
+    profileId Int
+    skill Skill @relation(fields: [skillId], references: [id])
+    skillId Int
+    skillLevel SkillLevel @relation(fields: [skillLevelId], references: [id])
+    skillLevelId Int
+    @@id([profileId, skillId])
+}
+
+model Skill {
+    id Int @id @default(autoincrement())
+    name String  @unique
+    profileSkill ProfileSkill[]
+}
+
+model SkillLevel{
+    id Int @id @default(autoincrement())
+    name String @unique
+    profileSkill ProfileSkill[]
+}
+
+model Experience {
+    id Int @id @default(autoincrement())
+    profile Profile @relation(fields: [profileId], references: [id])
+    profileId Int
+    company Company @relation(fields: [companyId], references: [id])
+    companyId Int
+    position Position @relation(fields: [positionId], references: [id])
+    positionId Int
+    dateStart DateTime
+    dateEnd DateTime?
+    achievements String?
+}
+
+model Company {
+    id Int @id @default(autoincrement())
+    name String @unique
+    experience Experience[]
+}
+
+model Position {
+    id Int @id @default(autoincrement())
+    name String @unique
+    experience Experience[]
+}
+
+model Project {
+    id Int @id @default(autoincrement())
+    name String
+    link String?
+    profile Profile @relation(fields: [profileId], references: [id])
+    profileId Int
+}
