@@ -15,12 +15,13 @@ datasource db {
 model Profile {
     id Int @id @default(autoincrement())
     name String  @unique
+    slug String @unique
     description String?
     github String?
     linkedin String?
     skills ProfileSkill[]
     experience Experience[]
-    projects Project[]
+    projects ProfileProject[]
 }
 
 model ProfileSkill {
@@ -36,12 +37,14 @@ model ProfileSkill {
 model Skill {
     id Int @id @default(autoincrement())
     name String  @unique
+    slug String @unique
     profileSkill ProfileSkill[]
 }
 
-model SkillLevel{
+model SkillLevel {
     id Int @id @default(autoincrement())
     name String @unique
+    slug String @unique
     profileSkill ProfileSkill[]
 }
 
@@ -61,19 +64,29 @@ model Experience {
 model Company {
     id Int @id @default(autoincrement())
     name String @unique
+    slug String @unique
     experience Experience[]
 }
 
 model Position {
     id Int @id @default(autoincrement())
     name String @unique
+    slug String @unique
     experience Experience[]
+}
+
+model ProfileProject {
+    profile Profile @relation(fields: [profileId], references: [id])
+    profileId Int
+    project Project @relation(fields: [projectId], references: [id])
+    projectId Int
+    @@id([profileId, projectId])
 }
 
 model Project {
     id Int @id @default(autoincrement())
-    name String
+    name String @unique
+    slug String @unique
     link String?
-    profile Profile @relation(fields: [profileId], references: [id])
-    profileId Int
+    profileProject ProfileProject[]
 }
