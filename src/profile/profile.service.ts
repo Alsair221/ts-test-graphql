@@ -1,12 +1,15 @@
 import  { Injectable } from '@nestjs/common';
+import {PrismaService} from "../prisma/prisma.service";
 
 @Injectable()
 export class ProfileService {
-    getProfile() {
-        return {
-            name: 'Имя',
-            secondName: 'Фамилия',
-            score: 'ну что тут есть'
-        }
+    constructor(
+        private readonly prisma: PrismaService
+    ) {
+    }
+    async getProfile() {
+        return this.prisma.profile.findUnique({
+            where: { slug: 'alexandr_semenov' }
+        })
     }
 }
