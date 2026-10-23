@@ -9,7 +9,12 @@ export class ProfileService {
     }
     async getProfile() {
         return this.prisma.profile.findUnique({
-            where: { slug: 'alexandr_semenov' }
+            where: { slug: 'alexandr_semenov' },
+            include: {
+                skills: { include: { skill: true, skillLevel: true } },
+                experience: { include: { company: true, position: true } },
+                projects: { include: { project: true } }
+            }
         })
     }
 }
