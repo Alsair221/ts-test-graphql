@@ -7,9 +7,20 @@ export class ProfileService {
         private readonly prisma: PrismaService
     ) {
     }
-    async getProfile() {
+
+    async getProfiles() {
+        return this.prisma.profile.findMany({
+            include: {
+                skills: {include: {skill: true, skillLevel: true}},
+                experience: {include: {company: true, position: true}},
+                projects: {include: {project: true}}
+            }
+        });
+    }
+
+    async getProfile(slug: string) {
         return this.prisma.profile.findUnique({
-            where: { slug: 'alexandr_semenov' },
+            where: { slug },
             include: {
                 skills: { include: { skill: true, skillLevel: true } },
                 experience: { include: { company: true, position: true } },

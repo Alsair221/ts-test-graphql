@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import {HttpStatus, Module} from '@nestjs/common';
 
 import { ProfileModule } from './profile/profile.module';
 import {PrismaModule} from "./prisma/prisma.module";
@@ -10,6 +10,17 @@ import {ApolloDriver, ApolloDriverConfig} from "@nestjs/apollo";
       GraphQLModule.forRoot<ApolloDriverConfig>({
         driver: ApolloDriver,
         autoSchemaFile: true,
+        formatError: (error) => {
+            const ext = error.extensions as Record<string, any>;
+            return {
+              message: error.message,
+              extensions: {
+                  code: ext?.status
+                      ? HttpStatus[ext.status]
+                      : ext?.code ?? 'INTERNAL_SERVER_ERROR',
+              },
+            };
+        },
       }),
       ProfileModule,
       PrismaModule
