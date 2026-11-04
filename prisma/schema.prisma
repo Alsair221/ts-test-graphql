@@ -59,6 +59,7 @@ model Experience {
     dateStart DateTime
     dateEnd DateTime?
     achievements String?
+    @@unique([profileId, companyId, positionId, dateStart])
 }
 
 model Company {

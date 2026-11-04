@@ -167,8 +167,18 @@ async function main() {
             dateEnd: dataExperience.dateEnd,
             achievements: dataExperience.achievements
         };
-        await prisma.experience.create({
-            data
+        await prisma.experience.upsert({
+            where: {
+                profileId_companyId_positionId_dateStart: {
+                    profileId: data.profileId,
+                    companyId: data.companyId,
+                    positionId: data.positionId,
+                    dateStart: data.dateStart
+                }
+            },
+            update: {},
+            create: data
+
         });
     }
 }
