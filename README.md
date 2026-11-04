@@ -25,7 +25,6 @@ docker-compose up --build
 
 все профили
 ```bash
-# development
 {
     profiles {
         name
