@@ -1,6 +1,7 @@
 import {HttpStatus, Module} from '@nestjs/common';
 
-import { ProfileModule } from './profile/profile.module';
+import {AuthModule} from "./auth/auth.module";
+import {ProfileModule} from './profile/profile.module';
 import {PrismaModule} from "./prisma/prisma.module";
 import {GraphQLModule} from "@nestjs/graphql";
 import {ApolloDriver, ApolloDriverConfig} from "@nestjs/apollo";
@@ -22,6 +23,7 @@ import {ApolloDriver, ApolloDriverConfig} from "@nestjs/apollo";
             };
         },
       }),
+      AuthModule,
       ProfileModule,
       PrismaModule
   ],

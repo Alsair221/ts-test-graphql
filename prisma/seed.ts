@@ -1,6 +1,7 @@
 import 'dotenv/config';
-import { PrismaClient, Prisma } from '../src/generated/prisma/client';
+import {PrismaClient, Prisma, UserRole} from '../src/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import * as bcrypt from 'bcrypt'
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -42,7 +43,12 @@ const dataSkills: Prisma.SkillCreateInput[] = [
     { name: '1C Bitrix', slug: '1c_bitrix' },
 ];
 
-const dataProfiles: Prisma.ProfileCreateInput[] = [
+const dataUsers = [
+    { email: 'admin@admin.admin', pass: 'admin', role: UserRole.ADMIN, profile: null },
+    { email: 'user@user.user', pass: 'user', role: UserRole.USER, profile: 'alexandr_semenov' },
+];
+
+const dataProfiles: Prisma.ProfileUncheckedCreateInput[] = [
     { name: 'Семенов Александр', slug: 'alexandr_semenov', github: 'https://github.com/Alsair221', description: '14 лет с Битриксом: от вёрстки шаблонов до бэкенда на D7 и highload-блоков. Последние 5 лет в air.agency — интеграции (Mindbox, 1С, DaData), кастомная бизнес-логика, оптимизация существующих решений. Не переписываю рабочее «с нуля», умею аккуратно улучшать чужой код. Готов к тестовому заданию.' },
     { name: 'Василий пупкин', slug: 'vasiliy_pipkin', github: 'url', linkedin: 'url', description: 'какое-то описание' },
     { name: 'Пример Примерыч', slug: 'primer_primerich', description: 'какое-то описание' },
@@ -124,9 +130,30 @@ async function main() {
         await createBySlug(projects, dataProject, prisma.project.upsert);
     }
 
+
+    const connectProfileToUser: Record<string, number> = {};
+    for (const dataUser of dataUsers) {
+        const data = {
+            email: dataUser.email,
+            passwordHash: await bcrypt.hash(dataUser.pass, 10),
+            role: dataUser.role
+        };
+        const element = await prisma.user.upsert({
+            where: { email: data.email },
+            update: {},
+            create: data
+        });
+        if (dataUser.profile){
+            connectProfileToUser[dataUser.profile] = element.id;
+        }
+    }
+
     //профили
     const profiles: Record<string, number> = {};
     for (const dataProfile of dataProfiles) {
+        if (connectProfileToUser[dataProfile.slug]){
+            dataProfile.userId = connectProfileToUser[dataProfile.slug];
+        }
         await createBySlug(profiles, dataProfile, prisma.profile.upsert);
     }
 

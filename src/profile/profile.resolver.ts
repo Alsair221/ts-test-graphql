@@ -1,11 +1,13 @@
-import {Args, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {Args, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
 import {ProfileSkillType, ProfileType, ProjectType} from "./profile.type";
 import {ProfileService} from "./profile.service";
 import {NotFoundException} from "@nestjs/common";
 
 @Resolver(() => ProfileType)
 export class ProfileResolver {
-    constructor(private readonly profileService: ProfileService) {
+    constructor(
+        private readonly profileService: ProfileService
+    ) {
     }
 
     @Query(() => [ProfileType], {
