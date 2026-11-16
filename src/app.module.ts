@@ -5,6 +5,7 @@ import {ProfileModule} from './profile/profile.module';
 import {PrismaModule} from "./prisma/prisma.module";
 import {GraphQLModule} from "@nestjs/graphql";
 import {ApolloDriver, ApolloDriverConfig} from "@nestjs/apollo";
+import {GraphQLError} from "graphql";
 
 @Module({
   imports: [
@@ -16,9 +17,8 @@ import {ApolloDriver, ApolloDriverConfig} from "@nestjs/apollo";
             return {
               message: error.message,
               extensions: {
-                  code: ext?.status
-                      ? HttpStatus[ext.status]
-                      : ext?.code ?? 'INTERNAL_SERVER_ERROR',
+                  code: ext?.code ?? 'INTERNAL_SERVER_ERROR',
+                  ...(ext?.fields ? { fields: ext.fields } : {})
               },
             };
         },
