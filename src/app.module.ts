@@ -1,9 +1,12 @@
-import {HttpStatus, Module} from '@nestjs/common';
+import {Module} from '@nestjs/common';
 
-import { ProfileModule } from './profile/profile.module';
+import {AuthModule} from "./auth/auth.module";
+import {ProfileModule} from './profile/profile.module';
 import {PrismaModule} from "./prisma/prisma.module";
 import {GraphQLModule} from "@nestjs/graphql";
 import {ApolloDriver, ApolloDriverConfig} from "@nestjs/apollo";
+import {APP_GUARD} from "@nestjs/core";
+import {JwtAuthGuard} from "./auth/jwt-auth.guard";
 
 @Module({
   imports: [
@@ -15,17 +18,19 @@ import {ApolloDriver, ApolloDriverConfig} from "@nestjs/apollo";
             return {
               message: error.message,
               extensions: {
-                  code: ext?.status
-                      ? HttpStatus[ext.status]
-                      : ext?.code ?? 'INTERNAL_SERVER_ERROR',
+                  code: ext?.code ?? 'INTERNAL_SERVER_ERROR',
+                  ...(ext?.fields ? { fields: ext.fields } : {})
               },
             };
         },
       }),
+      AuthModule,
       ProfileModule,
       PrismaModule
   ],
   controllers: [],
-  providers: [],
+  providers: [
+      { provide: APP_GUARD, useClass: JwtAuthGuard }
+  ],
 })
 export class AppModule {}

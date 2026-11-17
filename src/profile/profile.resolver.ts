@@ -1,13 +1,20 @@
-import {Args, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {Args, Context, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
 import {ProfileSkillType, ProfileType, ProjectType} from "./profile.type";
 import {ProfileService} from "./profile.service";
-import {NotFoundException} from "@nestjs/common";
+import {ConflictException, NotFoundException} from "@nestjs/common";
+import {Public} from "../auth/public.decorator";
+import {ProfileInput} from "./dto/profile.inputs";
+import type {GraphQlContext} from "../auth/auth.type";
+import slugify from "slugify";
 
 @Resolver(() => ProfileType)
 export class ProfileResolver {
-    constructor(private readonly profileService: ProfileService) {
+    constructor(
+        private readonly profileService: ProfileService
+    ) {
     }
 
+    @Public()
     @Query(() => [ProfileType], {
         description: 'Список всех профилей'
     })
@@ -15,6 +22,7 @@ export class ProfileResolver {
         return this.profileService.getProfiles();
     }
 
+    @Public()
     @Query(() => ProfileType, {
         nullable: true,
         description: 'Получить один профиль по slug. Если не найден - null.'
@@ -25,6 +33,18 @@ export class ProfileResolver {
             throw new NotFoundException(`Профиль "${slug}" не найден`)
         }
         return profile;
+    }
+
+    @Mutation(() => ProfileType)
+    async editProfile(@Args('input') input: ProfileInput, @Context() ctx: GraphQlContext){
+        const slug = input.slug ?? slugify(input.name, { lower: true, locale: 'ru' });
+        const profile = await this.profileService.getProfile(slug);
+        if (profile && profile.userId != ctx.req.user.sub){
+            throw new ConflictException(`Профиль "${slug}" уже существует!`);
+        }
+
+        input.slug = slug;
+        return this.profileService.editProfile(input, ctx.req.user.sub);
     }
 
     @ResolveField(() => ProfileSkillType)
