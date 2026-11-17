@@ -2,6 +2,7 @@ import {Resolver, Mutation, Args} from "@nestjs/graphql";
 import {AuthService} from "./auth.service";
 import {AuthPayload} from "./auth.type";
 import {LoginInput, RegisterInput} from "./dto/auth.inputs";
+import {Public} from "./public.decorator";
 
 @Resolver()
 export class AuthResolver{
@@ -10,6 +11,7 @@ export class AuthResolver{
     ) {
     }
 
+    @Public()
     @Mutation(() => AuthPayload, {
         description: 'регистрация пользователя по email'
     })
@@ -17,6 +19,7 @@ export class AuthResolver{
         return this.authService.register(input.email, input.password);
     }
 
+    @Public()
     @Mutation(() => AuthPayload, {
         description: 'авторизация пользователя по email'
     })

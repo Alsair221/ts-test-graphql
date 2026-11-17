@@ -7,7 +7,7 @@ import {JwtAuthGuard} from "./jwt-auth.guard";
 const secret = process.env.JWT_SECRET;
 @Module({
     imports: [
-        JwtModule.register({secret, signOptions: {expiresIn: '1d'}}),
+        JwtModule.register({ global: true, secret, signOptions: {expiresIn: '1d'}}),
     ],
     controllers: [],
     providers: [AuthService, AuthResolver, JwtAuthGuard],

@@ -1,10 +1,21 @@
 import {Field, Int, ObjectType, registerEnumType} from "@nestjs/graphql";
 import {UserRole} from "../generated/prisma/enums";
+import { Request } from 'express';
 
 registerEnumType(UserRole, {
     name: 'UserRole',
     description: 'Роль пользователя'
 })
+
+export interface JwtPayload {
+    sub: number;      // id пользователя
+    email: string;
+    role: UserRole;
+}
+
+export interface GraphQlContext {
+    req: Request & { user: JwtPayload };
+}
 
 @ObjectType()
 export class UserType {

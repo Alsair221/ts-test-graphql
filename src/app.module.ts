@@ -1,11 +1,12 @@
-import {HttpStatus, Module} from '@nestjs/common';
+import {Module} from '@nestjs/common';
 
 import {AuthModule} from "./auth/auth.module";
 import {ProfileModule} from './profile/profile.module';
 import {PrismaModule} from "./prisma/prisma.module";
 import {GraphQLModule} from "@nestjs/graphql";
 import {ApolloDriver, ApolloDriverConfig} from "@nestjs/apollo";
-import {GraphQLError} from "graphql";
+import {APP_GUARD} from "@nestjs/core";
+import {JwtAuthGuard} from "./auth/jwt-auth.guard";
 
 @Module({
   imports: [
@@ -28,6 +29,8 @@ import {GraphQLError} from "graphql";
       PrismaModule
   ],
   controllers: [],
-  providers: [],
+  providers: [
+      { provide: APP_GUARD, useClass: JwtAuthGuard }
+  ],
 })
 export class AppModule {}
