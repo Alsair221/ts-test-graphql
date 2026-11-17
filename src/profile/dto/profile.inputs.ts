@@ -7,9 +7,9 @@ export class ProfileInput{
     @MinLength(2)
     name: string;
 
-    @Field()
-    @Matches(/^[a-z0-9-]+$/)
-    @MinLength(2)
+    @Field({nullable: true})
+    @IsOptional()
+    @Matches(/^[a-z0-9-]+$/, { message: "slug не корректный: только латиница, цифры и дефисы" })
     slug: string;
 
     @Field({nullable: true})

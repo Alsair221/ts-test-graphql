@@ -30,13 +30,7 @@ export class ProfileService {
         })
     }
 
-    async getProfileByUser(userId: number) {
-        return this.prisma.profile.findUnique({
-            where: { userId }
-        })
-    }
-
-    async createProfile(input: ProfileInput, userId: number){
+    async editProfile(input: ProfileInput, userId: number){
         const data = {
             name: input.name,
             slug: input.slug,
@@ -45,6 +39,10 @@ export class ProfileService {
             github: input.github,
             linkedin: input.linkedin,
         };
-        return this.prisma.profile.create({ data });
+        return this.prisma.profile.upsert({
+            where: { userId },
+            update: data,
+            create: data
+        });
     }
 }

@@ -5,6 +5,7 @@ import {ConflictException, NotFoundException} from "@nestjs/common";
 import {Public} from "../auth/public.decorator";
 import {ProfileInput} from "./dto/profile.inputs";
 import type {GraphQlContext} from "../auth/auth.type";
+import slugify from "slugify";
 
 @Resolver(() => ProfileType)
 export class ProfileResolver {
@@ -35,13 +36,15 @@ export class ProfileResolver {
     }
 
     @Mutation(() => ProfileType)
-    async createProfile(@Args('input') input: ProfileInput, @Context() ctx: GraphQlContext){
-        const profile = await this.profileService.getProfileByUser(ctx.req.user.sub)
-        if (profile){
-            throw new ConflictException(`У вас уже существует профиль!`);
+    async editProfile(@Args('input') input: ProfileInput, @Context() ctx: GraphQlContext){
+        const slug = input.slug ?? slugify(input.name, { lower: true, locale: 'ru' });
+        const profile = await this.profileService.getProfile(slug);
+        if (profile && profile.userId != ctx.req.user.sub){
+            throw new ConflictException(`Профиль "${slug}" уже существует!`);
         }
 
-        return this.profileService.createProfile(input, ctx.req.user.sub);
+        input.slug = slug;
+        return this.profileService.editProfile(input, ctx.req.user.sub);
     }
 
     @ResolveField(() => ProfileSkillType)
