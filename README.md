@@ -2,10 +2,11 @@
 ## Описание проекта
 
 Это проект тестового задания на TypeScript + GraphQL. Проект включает докер-контейнер, который поднимает БД и небольшое API для получения профилей пользователей с их проектами, опытом работы, скилами.
+Проект задеплоен ан railway: https://ts-test-graphql-production.up.railway.app/graphql
 
 ## Используемый стэк
 
-TypeScript, NestJS, GraphQL, Prisma, PostgreSQL, Docker
+TypeScript, NestJS, GraphQL, Prisma, PostgreSQL, Docker, JWT
 
 ## Установка
 
