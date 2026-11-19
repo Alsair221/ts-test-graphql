@@ -35,13 +35,13 @@ export class AuthService {
         const user = await this.getUserByEmail(email);
 
         if (!user){
-            throw new UnauthorizedException(`Не верный логин или пароль!`);
+            throw new UnauthorizedException('Не верный логин или пароль!');
         }
 
         const isMatch = await bcrypt.compare(pass, user.passwordHash);
 
         if (!isMatch){
-            throw new UnauthorizedException(`Не верный логин или пароль!`);
+            throw new UnauthorizedException('Не верный логин или пароль!');
         }
 
         const token = this.buildToken(user);

@@ -1,12 +1,13 @@
-import {Module} from '@nestjs/common';
+import {BadRequestException, Module, ValidationPipe} from '@nestjs/common';
 
 import {AuthModule} from "./auth/auth.module";
 import {ProfileModule} from './profile/profile.module';
 import {PrismaModule} from "./prisma/prisma.module";
 import {GraphQLModule} from "@nestjs/graphql";
 import {ApolloDriver, ApolloDriverConfig} from "@nestjs/apollo";
-import {APP_GUARD} from "@nestjs/core";
+import {APP_GUARD, APP_PIPE} from "@nestjs/core";
 import {JwtAuthGuard} from "./auth/jwt-auth.guard";
+import {GraphQLError} from "graphql";
 
 @Module({
   imports: [
@@ -30,7 +31,24 @@ import {JwtAuthGuard} from "./auth/jwt-auth.guard";
   ],
   controllers: [],
   providers: [
-      { provide: APP_GUARD, useClass: JwtAuthGuard }
+      { provide: APP_GUARD, useClass: JwtAuthGuard },
+      { provide: APP_PIPE, useFactory: () => new ValidationPipe({
+              transform: true,
+              whitelist: true,
+              exceptionFactory: (errors): BadRequestException => {
+                  const fields = errors.map(err => ({
+                      field: err.property,
+                      messages: Object.values(err.constraints ?? {})
+                  }));
+                  return new BadRequestException({
+                      message: 'Ошибка валидации',
+                      fields: errors.map(err => ({
+                          field: err.property,
+                          messages: Object.values(err.constraints ?? {}),
+                      }))
+                  });
+              }
+          }) }
   ],
 })
 export class AppModule {}
